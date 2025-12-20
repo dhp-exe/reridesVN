@@ -1,1 +1,0 @@
-// Moved to frontend/src/components/ServiceRow.tsx

@@ -1,1 +1,0 @@
-// Moved to frontend/src/utils/formatPrice.ts

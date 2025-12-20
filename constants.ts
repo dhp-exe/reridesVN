@@ -1,1 +1,0 @@
-// Moved to frontend/src/constants/ui.ts
