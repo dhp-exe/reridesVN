@@ -34,7 +34,7 @@ const InputScreen: React.FC<InputScreenProps> = ({ onSearch, isLoading }) => {
     <div className="flex flex-col h-full p-6 animate-fade-in">
       <div className="mb-8 mt-4 text-center">
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight">ReRides VN</h1>
-        <p className="text-gray-500 text-sm mt-2">Compare Grab, Be & Xanh SM instantly.</p>
+        <p className="text-gray-500 text-sm mt-2">Compare ride options & prices instantly.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-6">

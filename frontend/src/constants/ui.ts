@@ -2,7 +2,7 @@ import { ProviderName } from '../types/estimate';
 
 export const PROVIDER_THEMES: Record<ProviderName, { color: string; bg: string; text: string; logoPlaceholder: string }> = {
   [ProviderName.XANH_SM]: {
-    color: '#00BFA5', // Cyan/Green
+    color: '#20e6d2ff', // Cyan/Green
     bg: 'bg-teal-50',
     text: 'text-teal-700',
     logoPlaceholder: 'https://placehold.co/48x48/00BFA5/FFFFFF?text=Xanh',
