@@ -33,9 +33,3 @@ export interface EstimateResponse {
   traffic_factor: number;
   results: ServiceResult[];
 }
-
-export interface SearchParams {
-  pickup: LocationInput;
-  destination: LocationInput;
-  vehicleType: VehicleType;
-}

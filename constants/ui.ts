@@ -1,4 +1,4 @@
-import { ProviderName } from '../types';
+import { ProviderName } from '../types/estimate';
 
 export const PROVIDER_THEMES: Record<ProviderName, { color: string; bg: string; text: string; logoPlaceholder: string }> = {
   [ProviderName.XANH_SM]: {
@@ -19,10 +19,4 @@ export const PROVIDER_THEMES: Record<ProviderName, { color: string; bg: string; 
     text: 'text-green-700',
     logoPlaceholder: 'https://placehold.co/48x48/00B14F/FFFFFF?text=Grab',
   },
-};
-
-export const WEB_LINKS: Record<ProviderName, string> = {
-  [ProviderName.GRAB]: 'https://www.grab.com/vn/transport/',
-  [ProviderName.BE]: 'https://be.com.vn/',
-  [ProviderName.XANH_SM]: 'https://www.xanhsm.com/',
 };

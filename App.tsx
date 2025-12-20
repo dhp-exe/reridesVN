@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import InputScreen from './screens/InputScreen';
 import ComparisonScreen from './screens/ComparisonScreen';
-import { EstimateResponse, LocationInput, VehicleType } from './types';
+import { EstimateResponse, LocationInput, VehicleType } from './types/estimate';
 import { fetchRideEstimates } from './services/estimateService';
 
 const App: React.FC = () => {
@@ -9,7 +9,6 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [responseData, setResponseData] = useState<EstimateResponse | null>(null);
   
-  // State for display purposes in Comparison Screen
   const [displayParams, setDisplayParams] = useState<{pickup: string, destination: string}>({ pickup: '', destination: '' });
 
   const handleSearch = async (pickup: LocationInput, destination: LocationInput, vehicleType: VehicleType) => {
@@ -36,8 +35,6 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-0 sm:p-4">
       <div className="w-full max-w-md bg-white sm:rounded-3xl shadow-2xl h-screen sm:h-[800px] overflow-hidden flex flex-col relative">
-        
-        {/* Status Bar Mock (Mobile Feel) */}
         <div className="h-8 bg-white w-full flex items-center justify-between px-6 select-none sm:hidden">
           <span className="text-xs font-semibold text-gray-900">9:41</span>
           <div className="flex gap-1">
