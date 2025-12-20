@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import InputScreen from './components/InputScreen';
-import ComparisonScreen from './components/ComparisonScreen';
+import InputScreen from './screens/InputScreen';
+import ComparisonScreen from './screens/ComparisonScreen';
 import { EstimateResponse, LocationInput, VehicleType } from './types';
-import { fetchRideEstimates } from './services/mockApi';
+import { fetchRideEstimates } from './services/estimateService';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<'input' | 'comparison'>('input');
@@ -17,8 +17,6 @@ const App: React.FC = () => {
     setDisplayParams({ pickup: pickup.address, destination: destination.address });
     
     try {
-      // Calls the mock API (simulate POST /estimate)
-      // We pass the coordinates as requested by the backend architecture
       const data = await fetchRideEstimates(pickup.coords, destination.coords, vehicleType);
       setResponseData(data);
       setStep('comparison');
