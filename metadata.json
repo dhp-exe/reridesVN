@@ -1,0 +1,5 @@
+{
+  "name": "ReRides VN",
+  "description": "A ride-hailing aggregator for Vietnam that compares Grab, Be, and Xanh SM prices and ETAs instantly to help users find the most cost-effective option.",
+  "requestFramePermissions": []
+}
