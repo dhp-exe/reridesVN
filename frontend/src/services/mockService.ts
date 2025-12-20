@@ -79,7 +79,7 @@ export const fetchMockEstimates = async (pickup: Coordinates, dropoff: Coordinat
   results.forEach(r => {
     const priceNorm = r.estimated_price / minPrice;
     const etaNorm = r.eta_min / minEta;
-    r.score = (0.7 * priceNorm) + (0.3 * etaNorm);
+    r.score = (0.9 * priceNorm) + (0.1 * etaNorm);
   });
 
   results.sort((a, b) => a.score - b.score);
