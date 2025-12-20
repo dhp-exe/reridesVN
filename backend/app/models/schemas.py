@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class Location(BaseModel):
     lat: float
@@ -12,10 +13,10 @@ class ProviderEstimate(BaseModel):
     provider: str
     distance_km: float
     duration_min: float
-    price_vnd: int
     traffic_level: str
+    price_vnd: int
     deeplink: str
 
 class EstimateResponse(BaseModel):
     best_option: str
-    options: list[ProviderEstimate]
+    options: List[ProviderEstimate]
