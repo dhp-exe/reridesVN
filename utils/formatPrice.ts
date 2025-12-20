@@ -1,3 +1,1 @@
-export const formatPriceK = (priceVnd: number): string => {
-  return `${(priceVnd / 1000).toFixed(0)}k`;
-};
+// Moved to frontend/src/utils/formatPrice.ts
