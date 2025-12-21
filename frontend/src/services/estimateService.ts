@@ -1,30 +1,68 @@
 import { EstimateResponse, VehicleType, Coordinates } from '../types/estimate';
-import { fetchMockEstimates, mockGeocode as fetchMockGeocode } from './mockService';
+import { fetchMockEstimates, mockGeocode } from './mockService';
 
-const USE_MOCK = true; // Toggle for dev
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const USE_BACKEND = import.meta.env.VITE_USE_BACKEND === 'true';
 
 export const fetchRideEstimates = async (
   pickup: Coordinates,
   dropoff: Coordinates,
   vehicleType: VehicleType
 ): Promise<EstimateResponse> => {
-  if (USE_MOCK) {
+
+  // 1.Explicit demo mode (GitHub Pages)
+  if (!USE_BACKEND) {
+    console.warn('Using mock estimates (backend disabled)');
     return fetchMockEstimates(pickup, dropoff, vehicleType);
-  } else {
-    // In production, this would call the Python backend
-    const response = await fetch('/api/estimate', {
+  }
+
+  // 2.Try backend, fallback on failure
+  try {
+    const response = await fetch(`${API_BASE}/api/estimate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pickup, dropoff, vehicle_type: vehicleType, time: 'now' })
+      body: JSON.stringify({
+        pickup,
+        dropoff,
+        vehicle_type: vehicleType,
+        time: 'now'
+      })
     });
+
+    if (!response.ok) {
+      throw new Error('Backend error');
+    }
+
     return await response.json();
+
+  } catch (err) {
+    console.warn('Backend unavailable, falling back to mock estimates');
+    return fetchMockEstimates(pickup, dropoff, vehicleType);
   }
 };
 
 export const geocodeLocation = async (address: string): Promise<Coordinates> => {
-  if (USE_MOCK) {
-    return fetchMockGeocode(address);
+
+  // GitHub Pages / demo mode
+  if (!USE_BACKEND) {
+    return mockGeocode(address);
   }
-  // Real implementation would call Google Places API or backend proxy
-  return { lat: 0, lng: 0 };
+
+  try {
+    const response = await fetch(`${API_BASE}/api/geocode`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address })
+    });
+
+    if (!response.ok) {
+      throw new Error('Geocode backend error');
+    }
+
+    return await response.json();
+
+  } catch (err) {
+    console.warn('Geocode backend unavailable, using mock');
+    return mockGeocode(address);
+  }
 };
