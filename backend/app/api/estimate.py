@@ -1,26 +1,27 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.services.routing_service import get_route
+from app.services.pricing_service import calculate_price
+from app.utils.traffic import get_traffic
+from app.core.constants import PROVIDERS
 
 router = APIRouter(prefix="/api", tags=["Estimate"])
 
-BIKE_MULTIPLIER = 0.45
-BASE_PRICE_PER_KM = 8000
-
+# Multiplier to derive Bike price from Car price
+BIKE_MULTIPLIER = 0.45 
 
 class Coordinates(BaseModel):
     lat: float
     lng: float
-
 
 class EstimateRequest(BaseModel):
     pickup: Coordinates
     dropoff: Coordinates
     vehicle_type: str  # "bike" | "car"
 
-
 @router.post("/estimate")
 def estimate(req: EstimateRequest):
+    # 1. Get Route (Distance & Duration)
     try:
         route = get_route(
             req.pickup.lat,
@@ -34,28 +35,42 @@ def estimate(req: EstimateRequest):
     distance_km = route["distance_km"]
     duration_min = route["duration_min"]
 
-    base_car_price = int(distance_km * BASE_PRICE_PER_KM)
+    # 2. Get Real-time Traffic Factor
+    traffic_level, traffic_factor = get_traffic()
 
-    vehicle = req.vehicle_type.lower()
+    # 3. Calculate Price for ALL Providers
+    vehicle_type = req.vehicle_type.lower()
+    results = []
 
-    if vehicle == "bike":
-        price = int(base_car_price * BIKE_MULTIPLIER)
-    elif vehicle == "car":
-        price = base_car_price
-    else:
-        raise HTTPException(status_code=400, detail="Invalid vehicle_type")
+    for provider_key, config in PROVIDERS.items():
+        
+        # Calculate base price (Car price)
+        base_price = calculate_price(
+            provider_key,
+            distance_km,
+            duration_min,
+            traffic_factor
+        )
+
+        # Apply discount if the user selected "Bike"
+        final_price = base_price
+        if vehicle_type == "bike":
+            final_price = int(base_price * BIKE_MULTIPLIER)
+
+        results.append({
+            "service": provider_key.upper(), # Returns "GRAB", "BE", "XANH_SM"
+            "vehicle_type": vehicle_type,
+            "estimated_price": final_price,
+            "eta_min": int(duration_min),
+            "score": 0, 
+            "deep_link": config.get("deeplink", "")
+        })
+
+    # 4. Sort by price (lowest first)
+    results.sort(key=lambda x: x["estimated_price"])
 
     return {
         "distance_km": distance_km,
-        "traffic_factor": 1,
-        "results": [
-            {
-                "service": "GRAB",
-                "vehicle_type": vehicle,
-                "estimated_price": price,
-                "eta_min": int(duration_min),
-                "score": 0,
-                "deep_link": ""
-            }
-        ]
+        "traffic_factor": traffic_factor,
+        "results": results
     }
