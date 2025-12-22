@@ -1,3 +1,12 @@
+# ========================
+# Node.js / Frontend
+# ========================
+node_modules/
+dist/
+build/
+dist-ssr/
+*.local
+
 # Logs
 logs
 *.log
@@ -7,20 +16,55 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ========================
+# Python / Backend
+# ========================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Editor directories and files
+# Virtual Environments
+venv/
+env/
+.venv/
+.env/
+
+# Distribution / Packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ========================
+# Environment Variables
+# ========================
+# Ignore all .env files (e.g., .env, .env.production, .env.local)
+.env
+.env.*
+!.env.example
+
+# ========================
+# IDEs & Editors
+# ========================
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-
-.env
