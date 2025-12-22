@@ -1,20 +1,27 @@
+import { EstimateResponse, Coordinates, VehicleType } from '../types/estimate';
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-export async function estimateRide(pickup: any, destination: any) {
-  const response = await fetch(`${API_BASE}/api/estimate`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+export async function estimateRide(
+  pickup: Coordinates,
+  dropoff: Coordinates,
+  vehicleType: VehicleType
+): Promise<EstimateResponse> {
+
+  const res = await fetch(`${API_BASE}/api/estimate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       pickup,
-      destination,
-    }),
+      dropoff,
+      vehicle_type: vehicleType,
+      time: 'now'
+    })
   });
 
-  if (!response.ok) {
-    throw new Error("Backend request failed");
+  if (!res.ok) {
+    throw new Error('Estimate API failed');
   }
 
-  return response.json();
+  return res.json();
 }

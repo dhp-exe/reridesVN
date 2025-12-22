@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { VehicleType, LocationInput } from '../types/estimate';
-import { geocodeLocation } from '../services/estimateService';
+import { VehicleType } from '../types/estimate';
 
 interface InputScreenProps {
-  onSearch: (pickup: LocationInput, destination: LocationInput, vehicleType: VehicleType) => void;
+  onSearch: (
+    pickupText: string,
+    destinationText: string,
+    vehicleType: VehicleType
+  ) => void;
   isLoading: boolean;
 }
 
@@ -12,22 +15,15 @@ const InputScreen: React.FC<InputScreenProps> = ({ onSearch, isLoading }) => {
   const [destText, setDestText] = useState('');
   const [vehicleType, setVehicleType] = useState<VehicleType>(VehicleType.BIKE);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!pickupText.trim() || !destText.trim()) return;
 
-    const pickupCoords = await geocodeLocation(pickupText);
-    const destCoords = await geocodeLocation(destText);
-
-    onSearch(
-      { address: pickupText, coords: pickupCoords },
-      { address: destText, coords: destCoords },
-      vehicleType
-    );
+    onSearch(pickupText, destText, vehicleType);
   };
 
   const handleUseCurrentLocation = () => {
-    setPickupText("Ben Thanh Market, District 1");
+    setPickupText('Ben Thanh Market, District 1');
   };
 
   return (

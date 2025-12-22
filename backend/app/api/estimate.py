@@ -1,76 +1,61 @@
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import (
-    EstimateRequest,
-    EstimateResponse,
-    ProviderEstimate
-)
-from app.services.routing_service import (
-    get_route,
-    get_route_fallback
-)
-from app.services.pricing_service import calculate_price
-from app.services.ranking_service import rank_options
-from app.services.deeplink_service import get_deeplink
-from app.utils.traffic import get_traffic
-from app.core.constants import PROVIDERS
+from pydantic import BaseModel
+from app.services.routing_service import get_route
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["Estimate"])
+
+BIKE_MULTIPLIER = 0.45
+BASE_PRICE_PER_KM = 8000
 
 
-@router.post("/estimate", response_model=EstimateResponse)
+class Coordinates(BaseModel):
+    lat: float
+    lng: float
+
+
+class EstimateRequest(BaseModel):
+    pickup: Coordinates
+    dropoff: Coordinates
+    vehicle_type: str  # "bike" | "car"
+
+
+@router.post("/estimate")
 def estimate(req: EstimateRequest):
-    """
-    Given pickup & destination:
-    - calculate distance & duration
-    - estimate price per provider
-    - rank best option
-    """
-
-    traffic_level, traffic_multiplier = get_traffic()
-    options: list[ProviderEstimate] = []
-
-    for provider in PROVIDERS.keys():
-        # 1. Routing (real API → fallback)
-        try:
-            distance_km, duration_min = get_route(
-                req.pickup,
-                req.destination,
-                traffic_multiplier
-            )
-        except Exception:
-            distance_km, duration_min = get_route_fallback(
-                req.pickup,
-                req.destination,
-                traffic_multiplier
-            )
-
-        # 2. Pricing
-        price_vnd = calculate_price(
-            provider,
-            distance_km,
-            duration_min,
-            traffic_multiplier
+    try:
+        route = get_route(
+            req.pickup.lat,
+            req.pickup.lng,
+            req.dropoff.lat,
+            req.dropoff.lng
         )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Routing failed: {e}")
 
-        # 3. Build response item
-        options.append(
-            ProviderEstimate(
-                provider=provider,
-                distance_km=distance_km,
-                duration_min=duration_min,
-                traffic_level=traffic_level,
-                price_vnd=price_vnd,
-                deeplink=get_deeplink(provider)
-            )
-        )
+    distance_km = route["distance_km"]
+    duration_min = route["duration_min"]
 
-    if not options:
-        raise HTTPException(status_code=500, detail="No estimates available")
+    base_car_price = int(distance_km * BASE_PRICE_PER_KM)
 
-    # 4. Ranking
-    best = rank_options(options)
+    vehicle = req.vehicle_type.lower()
 
-    return EstimateResponse(
-        best_option=best,
-        options=options
-    )
+    if vehicle == "bike":
+        price = int(base_car_price * BIKE_MULTIPLIER)
+    elif vehicle == "car":
+        price = base_car_price
+    else:
+        raise HTTPException(status_code=400, detail="Invalid vehicle_type")
+
+    return {
+        "distance_km": distance_km,
+        "traffic_factor": 1,
+        "results": [
+            {
+                "service": "GRAB",
+                "vehicle_type": vehicle,
+                "estimated_price": price,
+                "eta_min": int(duration_min),
+                "score": 0,
+                "deep_link": ""
+            }
+        ]
+    }

@@ -33,10 +33,9 @@ def get_route_fallback(pickup, destination, traffic_multiplier):
 
 
 # ---------- Real API (OpenRouteService) ----------
-def get_route(pickup, destination, traffic_multiplier):
-    if not ORS_API_KEY:
-        raise RuntimeError("ORS_API_KEY not set")
+ORS_URL = "https://api.openrouteservice.org/v2/directions/driving-car"
 
+def get_route(p_lat, p_lng, d_lat, d_lng):
     headers = {
         "Authorization": ORS_API_KEY,
         "Content-Type": "application/json"
@@ -44,20 +43,26 @@ def get_route(pickup, destination, traffic_multiplier):
 
     body = {
         "coordinates": [
-            [pickup.lng, pickup.lat],
-            [destination.lng, destination.lat]
+            [p_lng, p_lat],
+            [d_lng, d_lat]
         ]
     }
 
-    url = f"{ORS_BASE_URL}/driving-car"
+    r = requests.post(ORS_URL, json=body, headers=headers, timeout=10)
 
-    response = requests.post(url, json=body, headers=headers, timeout=10)
-    response.raise_for_status()
+    if r.status_code != 200:
+        raise Exception(f"ORS error {r.status_code}: {r.text}")
 
-    data = response.json()
-    summary = data["features"][0]["properties"]["summary"]
+    data = r.json()
 
-    distance_km = summary["distance"] / 1000
-    duration_min = (summary["duration"] / 60) * traffic_multiplier
+    try:
+        route = data["routes"][0]["summary"]
+        distance_km = route["distance"] / 1000
+        duration_min = route["duration"] / 60
+    except KeyError as e:
+        raise Exception(f"Routing failed: {e}")
 
-    return round(distance_km, 2), round(duration_min, 1)
+    return {
+        "distance_km": round(distance_km, 2),
+        "duration_min": round(duration_min)
+    }

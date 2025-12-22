@@ -3,6 +3,8 @@ import InputScreen from './screens/InputScreen';
 import ComparisonScreen from './screens/ComparisonScreen';
 import { EstimateResponse, LocationInput, VehicleType } from './types/estimate';
 import { fetchRideEstimates } from './services/estimateService';
+import { geocodeLocation } from './services/estimateService';
+import { Coordinates } from './types/estimate';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<'input' | 'comparison'>('input');
@@ -11,21 +13,35 @@ const App: React.FC = () => {
   
   const [displayParams, setDisplayParams] = useState<{pickup: string, destination: string}>({ pickup: '', destination: '' });
 
-  const handleSearch = async (pickup: LocationInput, destination: LocationInput, vehicleType: VehicleType) => {
+  const handleSearch = async (
+      pickupText: string,
+      destinationText: string,
+      vehicleType: VehicleType
+    ) => {
     setIsLoading(true);
-    setDisplayParams({ pickup: pickup.address, destination: destination.address });
+    setDisplayParams({ pickup: pickupText, destination: destinationText });
     
     try {
-      const data = await fetchRideEstimates(pickup.coords, destination.coords, vehicleType);
-      setResponseData(data);
-      setStep('comparison');
-    } catch (error) {
-      console.error("Failed to fetch estimates", error);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // 1. Geocode
+    const pickupCoords: Coordinates = await geocodeLocation(pickupText);
+    const destCoords: Coordinates = await geocodeLocation(destinationText);
+
+    // 2. Call estimate (backend or mock)
+    const data = await fetchRideEstimates(
+      pickupCoords,
+      destCoords,
+      vehicleType
+    );
+
+    setResponseData(data);
+    setStep('comparison');
+  } catch (error) {
+    console.error('Failed to fetch estimates', error);
+    alert('Something went wrong. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleBack = () => {
     setStep('input');

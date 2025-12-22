@@ -1,14 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.estimate import router
+from app.api import estimate, geocode
 
-app = FastAPI(title="ReRidesVN API")
-
+app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
-app.include_router(router, prefix="/api")
+app.include_router(estimate.router)
+app.include_router(geocode.router)
