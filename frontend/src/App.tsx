@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import InputScreen from './screens/InputScreen';
 import ComparisonScreen from './screens/ComparisonScreen';
 import { EstimateResponse, LocationInput, VehicleType } from './types/estimate';
@@ -12,6 +12,19 @@ const App: React.FC = () => {
   const [responseData, setResponseData] = useState<EstimateResponse | null>(null);
   
   const [displayParams, setDisplayParams] = useState<{pickup: string, destination: string}>({ pickup: '', destination: '' });
+  const [time, setTime] = useState(() =>
+    new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTime(
+        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      );
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSearch = async (
       pickupText: string,
@@ -52,7 +65,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-0 sm:p-4">
       <div className="w-full max-w-md bg-white sm:rounded-3xl shadow-2xl h-screen sm:h-[800px] overflow-hidden flex flex-col relative">
         <div className="h-8 bg-white w-full flex items-center justify-between px-6 select-none sm:hidden">
-          <span className="text-xs font-semibold text-gray-900">9:41</span>
+          <span className="text-xs font-semibold text-gray-900">{time}</span>
           <div className="flex gap-1">
              <div className="w-4 h-4 bg-gray-900 rounded-full opacity-20"></div>
              <div className="w-4 h-4 bg-gray-900 rounded-full opacity-20"></div>

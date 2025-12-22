@@ -59,14 +59,14 @@ const InputScreen: React.FC<InputScreenProps> = ({ onSearch, isLoading }) => {
   };
 
   return (
-    <div className="flex flex-col h-full p-6 animate-fade-in relative">
+    <div className="flex flex-col h-full p-4 animate-fade-in relative">
       <div className="mb-8 mt-4 text-center">
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight">ReRides VN</h1>
         <p className="text-gray-500 text-sm mt-2">Compare ride options & prices instantly.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-6 relative">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-4 relative">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-5 relative">
           
           {/* Decorative vertical line */}
           <div className="absolute left-8 top-12 bottom-12 w-0.5 bg-gray-200 border-l border-dashed border-gray-300 pointer-events-none"></div>
@@ -177,12 +177,18 @@ const InputScreen: React.FC<InputScreenProps> = ({ onSearch, isLoading }) => {
           <button
             type="submit"
             disabled={isLoading || !pickupText || !destText}
-            className={`w-full py-4 px-6 rounded-xl text-white font-bold text-lg shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all transform active:scale-95 ${
-              isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+            className={`w-full py-4 px-6 mb-10 rounded-xl text-white font-bold text-lg shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all transform active:scale-95 ${
+              isLoading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
             }`}
           >
             {isLoading ? 'Calculating Route...' : 'Find Best Price'}
           </button>
+
+          <p className="text-gray-500 text-sm mt-2 text-center">
+            Made by dhp.
+          </p>
         </div>
       </form>
     </div>
