@@ -41,8 +41,7 @@ The easiest way to run the project is using Docker. This will set up the Fronten
 ### Steps
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/your-username/rerides-vn.git](https://github.com/your-username/rerides-vn.git)
-   cd rerides-vn
+   git clone https://github.com/dhp-exe/reridesVN.git
     ```
 2. **Configure Environment:**
  Create a ```.env``` file in the ```backend/``` folder:
