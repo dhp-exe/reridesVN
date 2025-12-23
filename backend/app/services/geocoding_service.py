@@ -38,7 +38,6 @@ def save_to_cache(address: str, lat: float, lng: float):
         cursor = conn.cursor()
         
         clean_addr = normalize_address(address)
-        # INSERT OR REPLACE updates the timestamp if the address already exists
         cursor.execute(
             "INSERT OR REPLACE INTO geocode_cache (address, lat, lng) VALUES (?, ?, ?)",
             (clean_addr, lat, lng)

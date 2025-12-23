@@ -8,8 +8,8 @@ import { fetchRideEstimates, geocodeLocation } from './services/estimateService'
 interface DisplayParams {
   pickup: string;
   destination: string;
-  pickupCoords: Coordinates; // <--- This was missing
-  dropoffCoords: Coordinates; // <--- This was missing
+  pickupCoords: Coordinates; 
+  dropoffCoords: Coordinates; 
 }
 
 const App: React.FC = () => {
@@ -37,7 +37,6 @@ const App: React.FC = () => {
       const pickupCoords: Coordinates = await geocodeLocation(pickupText);
       const destCoords: Coordinates = await geocodeLocation(destinationText);
 
-      // Save everything to state (Text + Coordinates)
       setDisplayParams({ 
         pickup: pickupText, 
         destination: destinationText,
@@ -45,7 +44,6 @@ const App: React.FC = () => {
         dropoffCoords: destCoords   
       });
 
-      // Fetch estimates
       const data = await fetchRideEstimates(
         pickupCoords,
         destCoords,
@@ -89,7 +87,6 @@ const App: React.FC = () => {
             onBack={handleBack}
             pickup={displayParams.pickup}
             destination={displayParams.destination}
-            // Now these will definitely exist!
             pickupCoords={displayParams.pickupCoords}
             dropoffCoords={displayParams.dropoffCoords}
           />

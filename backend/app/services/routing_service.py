@@ -32,7 +32,7 @@ def get_route_fallback(pickup, destination, traffic_multiplier):
     return {
         "distance_km": round(distance, 2),
         "duration_min": round(duration, 1),
-        "route_geometry": None # Fallback has no map line
+        "route_geometry": None
     }
 
 
@@ -56,29 +56,22 @@ def get_route(p_lat, p_lng, d_lat, d_lng):
         r = requests.post(ORS_URL, json=body, headers=headers, timeout=10)
 
         if r.status_code != 200:
-            # Log error but don't crash app if possible
             print(f"ORS error {r.status_code}: {r.text}") 
             raise Exception(f"ORS error {r.status_code}")
 
         data = r.json()
 
-        # --- MODIFIED SECTION START ---
-        # Extract the whole route object first
         route_data = data["routes"][0]
         
-        # Get Summary (Distance/Duration)
         summary = route_data["summary"]
         distance_km = summary["distance"] / 1000
         duration_min = summary["duration"] / 60
         
-        # Get Geometry (Encoded Polyline)
         geometry = route_data.get("geometry", "") 
-        # --- MODIFIED SECTION END ---
-
         return {
             "distance_km": round(distance_km, 2),
             "duration_min": round(duration_min),
-            "route_geometry": geometry # <--- Included in response
+            "route_geometry": geometry 
         }
 
     except KeyError as e:

@@ -68,3 +68,8 @@ wheels/
 *.njsproj
 *.sln
 *.sw?
+# ========================
+# Database (IMPORTANT: Do not commit!)
+# ========================
+*.db
+*.sqlite3
