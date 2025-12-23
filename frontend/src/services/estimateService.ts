@@ -31,7 +31,8 @@ export const fetchSuggestions = async (query: string): Promise<string[]> => {
     "Tan Son Nhat Airport, Tan Binh",
     "Landmark 81, Binh Thanh",
     "Bitexco Financial Tower, District 1",
-    "235 Nguyen Van Cu, District 5"
+    "235 Nguyen Van Cu, District 5",
+    "268 Ly Thuong Kiet, District 10"
   ];
   return MOCK_PLACES.filter(p => p.toLowerCase().includes(query.toLowerCase()));
 };
@@ -57,8 +58,8 @@ const adaptToEstimateResponse = (
   return {
     distance_km: raw.distance_km ?? raw.distance ?? 0,
     traffic_factor: raw.traffic_factor ?? 1,
+    route_geometry: raw.route_geometry ?? '',
     results: items.map((item: any) => ({
-      //Ui Fix: Normalize the service string to match ProviderName enum
       service: normalizeServiceName(item.service ?? item.provider), 
       vehicle_type: vehicleType,
       estimated_price: item.estimated_price ?? item.price_vnd,

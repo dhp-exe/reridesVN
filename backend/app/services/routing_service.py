@@ -29,7 +29,11 @@ def get_route_fallback(pickup, destination, traffic_multiplier):
         destination.lat, destination.lng
     )
     duration = estimate_duration(distance, traffic_multiplier)
-    return round(distance, 2), round(duration, 1)
+    return {
+        "distance_km": round(distance, 2),
+        "duration_min": round(duration, 1),
+        "route_geometry": None # Fallback has no map line
+    }
 
 
 # ---------- Real API (OpenRouteService) ----------
@@ -48,21 +52,37 @@ def get_route(p_lat, p_lng, d_lat, d_lng):
         ]
     }
 
-    r = requests.post(ORS_URL, json=body, headers=headers, timeout=10)
-
-    if r.status_code != 200:
-        raise Exception(f"ORS error {r.status_code}: {r.text}")
-
-    data = r.json()
-
     try:
-        route = data["routes"][0]["summary"]
-        distance_km = route["distance"] / 1000
-        duration_min = route["duration"] / 60
-    except KeyError as e:
-        raise Exception(f"Routing failed: {e}")
+        r = requests.post(ORS_URL, json=body, headers=headers, timeout=10)
 
-    return {
-        "distance_km": round(distance_km, 2),
-        "duration_min": round(duration_min)
-    }
+        if r.status_code != 200:
+            # Log error but don't crash app if possible
+            print(f"ORS error {r.status_code}: {r.text}") 
+            raise Exception(f"ORS error {r.status_code}")
+
+        data = r.json()
+
+        # --- MODIFIED SECTION START ---
+        # Extract the whole route object first
+        route_data = data["routes"][0]
+        
+        # Get Summary (Distance/Duration)
+        summary = route_data["summary"]
+        distance_km = summary["distance"] / 1000
+        duration_min = summary["duration"] / 60
+        
+        # Get Geometry (Encoded Polyline)
+        geometry = route_data.get("geometry", "") 
+        # --- MODIFIED SECTION END ---
+
+        return {
+            "distance_km": round(distance_km, 2),
+            "duration_min": round(duration_min),
+            "route_geometry": geometry # <--- Included in response
+        }
+
+    except KeyError as e:
+        print(f"Routing data parsing failed: {e}")
+        raise Exception(f"Routing failed: {e}")
+    except Exception as e:
+        raise e

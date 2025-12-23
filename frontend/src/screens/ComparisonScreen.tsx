@@ -2,16 +2,26 @@ import React from 'react';
 import { EstimateResponse } from '../types/estimate';
 import ServiceRow from '../components/ServiceRow';
 import TrafficBadge from '../components/TrafficBadge';
+import MapComponent from '../components/MapComponent'; // Import Map
 
 interface ComparisonScreenProps {
   data: EstimateResponse;
   onBack: () => void;
   pickup: string;
   destination: string;
+  pickupCoords: { lat: number; lng: number }; // <--- New Prop
+  dropoffCoords: { lat: number; lng: number }; // <--- New Prop
 }
 
-const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ data, onBack, pickup, destination }) => {
-  const { results, traffic_factor, distance_km } = data;
+const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ 
+  data, 
+  onBack, 
+  pickup, 
+  destination,
+  pickupCoords,
+  dropoffCoords
+}) => {
+  const { results, traffic_factor, distance_km, route_geometry } = data;
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
@@ -26,6 +36,16 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ data, onBack, picku
           Back to Search
         </button>
         
+        {/* --- MAP VISUALIZATION --- */}
+        <div className="mb-6">
+          <MapComponent 
+            pickup={{ ...pickupCoords, label: pickup }}
+            dropoff={{ ...dropoffCoords, label: destination }}
+            routeGeometry={route_geometry}
+          />
+        </div>
+        {/* ------------------------- */}
+
         <div className="flex items-start justify-between">
           <div className="flex-1 mr-2">
             <h2 className="text-xl font-bold text-gray-900">Best Rides Found</h2>
@@ -49,10 +69,8 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ data, onBack, picku
           />
         ))}
 
-        <div className="text-center mt-6 p-4">
-          <p className="text-xs text-gray-400">
-            *Prices are estimates. Final fare may vary in app.
-          </p>
+        <div className="text-center p-4 text-xs text-gray-400">
+          Prices and ETAs are estimates based on real-time data.
         </div>
       </div>
     </div>

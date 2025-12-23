@@ -34,6 +34,7 @@ def estimate(req: EstimateRequest):
 
     distance_km = route["distance_km"]
     duration_min = route["duration_min"]
+    route_geometry = route.get("route_geometry", "")
 
     # 2. Get Real-time Traffic Factor
     traffic_level, traffic_factor = get_traffic()
@@ -72,5 +73,6 @@ def estimate(req: EstimateRequest):
     return {
         "distance_km": distance_km,
         "traffic_factor": traffic_factor,
+        "route_geometry": route_geometry,
         "results": results
     }

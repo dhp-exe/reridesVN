@@ -31,5 +31,6 @@ export interface ServiceResult {
 export interface EstimateResponse {
   distance_km: number;
   traffic_factor: number;
+  route_geometry?: string;
   results: ServiceResult[];
 }
