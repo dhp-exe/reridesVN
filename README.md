@@ -1,43 +1,66 @@
 # ReRides VN 🛵🚗
 
-ReRides VN is a ride-hailing aggregator application for Vietnam. It allows users to instantly compare prices and estimated arrival times (ETAs) across major platforms like Grab, Be, and Xanh SM for both Bike and Car services.
+ReRides VN is a ride-hailing aggregator application for Vietnam. It allows users to instantly compare prices and estimated arrival times (ETAs) across major platforms such as: Grab, Be, and Xanh SM,.. for both Bike and Car services.
 
 ## ✨ Features
 
-**Multi-Provider Comparison:** Compare estimated fares from Grab, Be, and Xanh SM in one view.
-
-**Vehicle Options:** Switch easily between **Bike** and **Car** options.
-
-**Smart Location Search:** - Powered by **OpenMap.vn** for accurate Vietnamese address autocomplete and geocoding.
-- Supports "search as you type" for local landmarks and addresses.
-
-**Real-time Estimates:**
-- Calculates routes and distances via **OpenRouteService API**.
-- Adjusts pricing based on dynamic traffic factors (Rush Hour detection).
-
-**Smart Ranking:** Automatically highlights the "Best Choice" based on the most time-cost-effective ride.
-
-**Deep Linking:** One-click booking that opens the specific ride details directly in the provider's mobile app.
-
-**Responsive UI:** Modern, mobile-first design using Tailwind CSS.
+- **Multi-Provider Comparison:** Real-time price comparison for Grab, Be, and Xanh SM.
+- **Vehicle Options:** Switch easily between Bike (Motorbike) and Car (4-seater).
+- **Visual Route Map:** Interactive map showing the exact route and pickup/dropoff points (powered by **Leaflet** & **OpenRouteService**).
+- **Smart Geocoding:** - **OpenMap.vn** for accurate Vietnamese address search.
+  - **SQLite Caching** to minimize API costs and speed up repeated searches.
+- **Real-time Routing:** Accurate distances and duration estimates via **OpenRouteService**.
+- **Traffic Logic:** Dynamic pricing adjustments based on rush hour traffic.
+- **Deep Linking:** One-click booking to open the specific ride directly in the provider's app.
+- **Dockerized:** Fully containerized for easy deployment.
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework:** React (Vite)
+- **Framework:** React 18 (Vite)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
-- **State Management:** React Hooks
+- **Map Library:** React Leaflet
+- **Server:** Nginx (in Docker)
 
 ### Backend
-- **Framework:** FastAPI (Python)
-- **Routing Engine:** OpenRouteService API (for distance & duration)
-- **Geocoding Engine:** OpenMap.vn API (for autocomplete & coordinates)
-- **Utilities:** pydantic for validation, python-dotenv for configuration.
+- **Framework:** FastAPI (Python 3.9+)
+- **Database:** SQLite (for caching geocodes)
+- **Routing Engine:** OpenRouteService API
+- **Geocoding Engine:** OpenMap.vn API
+- **Server:** Uvicorn
 
-## 🚀 Running the project
+## 🚀 Getting Started ( using Docker)
 
-Follow these instructions to run the project locally.
+The easiest way to run the project is using Docker. This will set up the Frontend, Backend, and Nginx proxy automatically.
+
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+- API Keys for **OpenRouteService** and **OpenMap.vn**.
+
+### Steps
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/your-username/rerides-vn.git](https://github.com/your-username/rerides-vn.git)
+   cd rerides-vn
+    ```
+2. **Configure Environment:**
+ Create a ```.env``` file in the ```backend/``` folder:
+
+    ```
+    ORS_API_KEY=your_openrouteservice_key
+    OPENMAP_API_KEY=your_openmap_key
+    ```
+3. **Run with Docker Compose:**
+    ```bash
+    docker-compose up --build
+    ```
+
+4. **Access the App:** Open your browser at http://localhost:3000.
+
+## ⚙️ Manual Setup (For Development)
+
+If you want to run the services individually without Docker.
 
 ### Prerequisites
 - **Node.js** (v18+ recommended)
@@ -47,15 +70,13 @@ Follow these instructions to run the project locally.
 
 ### 1. Backend Setup
 
-The backend handles routing calculations, geocoding, and price estimations.
-
 Navigate to the backend directory:
 ```bash
 cd backend
 ```
 Create a virtual environment (optional but recommended):
 
-```
+```bash
 python -m venv venv
 
 # Windows
@@ -65,13 +86,13 @@ source venv/bin/activate
 ```
 Install dependencies:
 
-```
+```bash
 pip install -r requirements.txt
 ```
 Configure Environment Variables: Create a .env file in the backend folder and add your API key:
 
 ```
-# Routing (Distance/Duration)
+# Routing
 ORS_API_KEY=your_openrouteservice_api_key_here
 
 # Geocoding & Autocomplete
@@ -79,29 +100,22 @@ OPENMAP_API_KEY=your_openmap_api_key_here
 ```
 Start the server:
 
-```
+```bash
 uvicorn app.main:app --reload
 ```
 The API will be available at http://localhost:8000.
 
-2. Frontend Setup
+### 2. Frontend Setup
 Navigate to the frontend directory:
 
-```
+```bash
 cd frontend
 ```
 Install dependencies:
 
-```
+```bash
 npm install
 ```
-Note on Mock Mode: By default, the frontend might be set to use mock data for development. To use the real Python backend:
-
-Open ```src/services/estimateService.ts.```
-
-Set ```const USE_MOCK = false;```
-
-Ensure your ```vite.config.ts``` proxies ```/api``` requests to ```http://localhost:8000```(or configure CORS on the backend).
 
 Run the development server:
 
@@ -110,31 +124,27 @@ npm run dev
 ```
 Open your browser at http://localhost:5173.
 
-## ⚙️ Configuration
-Pricing Logic
-You can adjust the base fares and per-km rates in backend/app/core/constants.py:
-
-```Python
-
-PROVIDERS = {
-    "grab": { "base_fare": 12000, "per_km": 4500, ... },
-    "be":   { "base_fare": 10000, "per_km": 4300, ... },
-    ...
-}
+## 📂 Project Structure
 ```
-Traffic Logic
-Traffic multipliers are defined in ```backend/app/utils/traffic.py``` based on the time of day (e.g., heavy traffic between 7-9 AM and 4-7 PM).
-
-## 📱 Deep Links
-The app generates deep links to open the provider apps directly:
-
-Grab: ```grab://open?screenType=BOOKING...```
-
-Be: ```be://booking...```
-
-Xanh SM: ```xanhsm://booking...```
-
-(Note: Deep links work best when testing on a mobile device with the respective apps installed.)
-
+.
+├── docker-compose.yml    # Orchestrates Frontend & Backend
+├── backend/
+│   ├── app/
+│   │   ├── api/          # Endpoints (estimate, geocode)
+│   │   ├── services/     # Logic (Routing, Pricing, Caching)
+│   │   ├── core/         # Config & Database logic
+│   │   └── main.py       # Entry point
+│   ├── app.db            # SQLite Cache
+│   ├── Dockerfile        # Backend Image config
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/   # UI Components (Map, ServiceRow)
+│   │   ├── screens/      # App Screens (Input, Comparison)
+│   │   └── services/     # API Adapters
+│   ├── Dockerfile        # Frontend Image config
+│   └── nginx.conf        # Nginx Proxy config
+└── README.md
+```
 ## 📄 License
-[Mb] Project is open source.
+This project is open source.
