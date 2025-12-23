@@ -55,18 +55,23 @@ const adaptToEstimateResponse = (
 ): EstimateResponse => {
   const items = raw.results ?? raw.options ?? [];
 
+  // 1. Map raw data to our interface
+  const mappedResults = items.map((item: any) => ({
+    service: normalizeServiceName(item.service ?? item.provider),
+    vehicle_type: vehicleType,
+    estimated_price: item.estimated_price ?? item.price_vnd,
+    eta_min: item.eta_min ?? item.duration_min,
+    score: item.score ?? 0,
+    deep_link: item.deep_link ?? null
+  }));
+
+  mappedResults.sort((a: any, b: any) => a.estimated_price - b.estimated_price);
+
   return {
     distance_km: raw.distance_km ?? raw.distance ?? 0,
     traffic_factor: raw.traffic_factor ?? 1,
     route_geometry: raw.route_geometry ?? '',
-    results: items.map((item: any) => ({
-      service: normalizeServiceName(item.service ?? item.provider), 
-      vehicle_type: vehicleType,
-      estimated_price: item.estimated_price ?? item.price_vnd,
-      eta_min: item.eta_min ?? item.duration_min,
-      score: item.score ?? 0,
-      deep_link: item.deep_link ?? null
-    }))
+    results: mappedResults
   };
 };
 

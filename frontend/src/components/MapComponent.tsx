@@ -4,7 +4,6 @@ import L from 'leaflet';
 import polyline from 'polyline';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default Leaflet marker icons in React
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -19,17 +18,19 @@ L.Marker.prototype.options.icon = DefaultIcon;
 interface MapProps {
   pickup: { lat: number; lng: number; label: string };
   dropoff: { lat: number; lng: number; label: string };
-  routeGeometry?: string; // Encoded polyline string from Backend
+  routeGeometry?: string; 
 }
 
-// Helper to auto-fit map bounds
 const MapRecenter: React.FC<{ bounds: L.LatLngBoundsExpression }> = ({ bounds }) => {
   const map = useMap();
+
   useEffect(() => {
-    if (bounds) {
+    setTimeout(() => {
+      map.invalidateSize();   // forces correct layout
       map.fitBounds(bounds, { padding: [50, 50] });
-    }
+    }, 0);
   }, [bounds, map]);
+
   return null;
 };
 
@@ -38,7 +39,6 @@ const MapComponent: React.FC<MapProps> = ({ pickup, dropoff, routeGeometry }) =>
     ? polyline.decode(routeGeometry) 
     : []) as [number, number][];
 
-  // Calculate bounds to fit both markers
   const bounds = L.latLngBounds([
     [pickup.lat, pickup.lng],
     [dropoff.lat, dropoff.lng]
@@ -46,15 +46,26 @@ const MapComponent: React.FC<MapProps> = ({ pickup, dropoff, routeGeometry }) =>
 
   return (
     <div className="h-64 w-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0">
+      {/* 1. Add this style tag to fix Tailwind image conflict locally */}
+      <style>
+        {`
+          .leaflet-container img.leaflet-tile {
+            max-width: none !important;
+            max-height: none !important;
+          }
+        `}
+      </style>
+
       <MapContainer 
         center={[pickup.lat, pickup.lng]} 
-        zoom={13} 
+        zoom={12} 
         scrollWheelZoom={false} 
         className="h-full w-full"
+        // 2. Explicit style to ensure height is respected
+        style={{ height: '100%', minHeight: '100%' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
 
         <Marker position={[pickup.lat, pickup.lng]}>
@@ -65,7 +76,6 @@ const MapComponent: React.FC<MapProps> = ({ pickup, dropoff, routeGeometry }) =>
           <Popup>🏁 Destination: {dropoff.label}</Popup>
         </Marker>
 
-        {/* Draw the Blue Route Line */}
         {routePositions.length > 0 && (
           <Polyline 
             positions={routePositions} 
