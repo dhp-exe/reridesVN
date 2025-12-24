@@ -9,18 +9,21 @@ console.log('USE_BACKEND =', USE_BACKEND);
 console.log('API_BASE =', API_BASE);
 
 // AUTOCOMPLETE
-export const fetchSuggestions = async (query: string): Promise<string[]> => {
+export const fetchSuggestions = async (query: string, userLocation?: Coordinates | null): Promise<string[]> => {
   if (!query || query.length < 2) return [];
 
   // 1. Try Backend
   if (USE_BACKEND) {
     try {
-      const response = await fetch(`${API_BASE}/api/autocomplete?query=${encodeURIComponent(query)}`);
-      if (response.ok) {
-        return await response.json();
+      let url = `${API_BASE}/api/autocomplete?query=${encodeURIComponent(query)}`;
+      if (userLocation) {
+        url += `&lat=${userLocation.lat}&lng=${userLocation.lng}`;
       }
-    } catch (error) {
-      console.warn('Backend autocomplete failed', error);
+
+      const response = await fetch(url);
+      if (response.ok) return await response.json();
+    } catch (e) {
+      console.warn('Backend autocomplete failed', e);
     }
   }
 

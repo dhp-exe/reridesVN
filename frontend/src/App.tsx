@@ -3,8 +3,9 @@ import InputScreen from './screens/InputScreen';
 import ComparisonScreen from './screens/ComparisonScreen';
 import { EstimateResponse, VehicleType, Coordinates } from './types/estimate';
 import { fetchRideEstimates, geocodeLocation } from './services/estimateService';
+import { saveSearchHistory } from './utils/storage'; 
 
-// 1. Define the Interface for your display params
+// Define interface for display params
 interface DisplayParams {
   pickup: string;
   destination: string;
@@ -17,7 +18,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [responseData, setResponseData] = useState<EstimateResponse | null>(null);
   
-  // 2. Initialize State with DEFAULT coordinates (prevents "undefined" crash)
+  // Initialize State with DEFAULT coordinates
   const [displayParams, setDisplayParams] = useState<DisplayParams>({ 
     pickup: '', 
     destination: '',
@@ -28,15 +29,26 @@ const App: React.FC = () => {
   const handleSearch = async (
       pickupText: string,
       destinationText: string,
-      vehicleType: VehicleType
+      vehicleType: VehicleType,
+      overridePickupCoords?: Coordinates // <--- NEW: Optional override
     ) => {
     setIsLoading(true);
     
     try {
-      // Geocode locations first
-      const pickupCoords: Coordinates = await geocodeLocation(pickupText);
+      // 1. Save valid searches to history
+      if (pickupText !== "My Current Location") saveSearchHistory(pickupText);
+      saveSearchHistory(destinationText);
+
+      // 2. Geocode
+      // If we have GPS coords (User clicked "Use my location"), use them directly.
+      // Otherwise, geocode the text string.
+      const pickupCoords: Coordinates = overridePickupCoords 
+        ? overridePickupCoords 
+        : await geocodeLocation(pickupText);
+        
       const destCoords: Coordinates = await geocodeLocation(destinationText);
 
+      // 3. Save params for the next screen (Map)
       setDisplayParams({ 
         pickup: pickupText, 
         destination: destinationText,
@@ -44,6 +56,7 @@ const App: React.FC = () => {
         dropoffCoords: destCoords   
       });
 
+      // 4. Fetch estimates
       const data = await fetchRideEstimates(
         pickupCoords,
         destCoords,

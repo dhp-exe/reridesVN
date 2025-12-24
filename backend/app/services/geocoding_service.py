@@ -100,25 +100,30 @@ def geocode_address(address: str) -> tuple[float, float]:
         print(f"OpenMap Geocode Error: {e}")
         return 0.0, 0.0
 
-def search_places(query: str):
+def search_places(query: str, lat: float = None, lng: float = None):
     """
-    Returns a list of address suggestions using OpenMap.vn Autocomplete.
-    (Autocomplete is typically not cached due to partial inputs)
+    Returns a list of address suggestions.
+    If lat/lng is provided, it biases results to that location (radius ~20km).
     """
     if not query or len(query) < 2 or not OPENMAP_API_KEY:
         return []
 
     url = f"{OM_BASE_URL}/autocomplete"
+    
+    params = {
+        "apikey": OPENMAP_API_KEY,
+        "input": query
+    }
+
+    # Add location biasing if coordinates exist
+    if lat is not None and lng is not None:
+        # Format: "lat,lng" and radius in meters (20km = 20000)
+        params["location"] = f"{lat},{lng}"
+        params["radius"] = 20000 
+        params["strictbounds"] = "false" # Prefer nearby, but don't restrict strictly
 
     try:
-        response = requests.get(
-            url,
-            params={
-                "apikey": OPENMAP_API_KEY,
-                "input": query
-            },
-            timeout=3
-        )
+        response = requests.get(url, params=params, timeout=3)
         
         if response.status_code == 200:
             data = response.json()
