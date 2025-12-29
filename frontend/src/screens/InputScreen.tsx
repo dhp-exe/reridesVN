@@ -91,7 +91,9 @@ const InputScreen: React.FC<InputScreenProps> = ({ onSearch, isLoading }) => {
       setPickupText("My Current Location");
       setPickupSuggestions([]);
       setActiveField(null);
-    } else {
+    } 
+    else {
+      setPickupText("My Current Location");
       alert("Location not available. Please allow GPS access.");
     }
   };

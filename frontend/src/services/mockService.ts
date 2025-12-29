@@ -55,23 +55,23 @@ export const fetchMockEstimates = async (
         estimated_price: vehicleType === 'bike' ? 18000 : 45000,
         eta_min: 15,
         score: 0,
-        deep_link: null
+        deep_link: buildDeepLink(ProviderName.GRAB, pickup, dropoff)
       },
       {
         service: 'Be',
         vehicle_type: vehicleType,
-        estimated_price: vehicleType === 'bike' ? 17000 : 43000,
+        estimated_price: vehicleType === 'bike' ? 16000 : 43000,
         eta_min: 17,
         score: 1,
-        deep_link: null
+        deep_link: buildDeepLink(ProviderName.BE, pickup, dropoff)
       },
       {
         service: 'Xanh SM',
         vehicle_type: vehicleType,
-        estimated_price: vehicleType === 'bike' ? 16000 : 44000,
+        estimated_price: vehicleType === 'bike' ? 17000 : 44000,
         eta_min: 16,
         score: 1,
-        deep_link: null
+        deep_link: buildDeepLink(ProviderName.XANH_SM, pickup, dropoff)
       }
     ]
   };
