@@ -2,6 +2,9 @@
 
 ReRides VN is a ride-hailing aggregator application for Vietnam. It allows users to instantly compare prices and estimated arrival times (ETAs) across major platforms such as: Grab, Be, and Xanh SM,.. for both Bike and Car services.
 
+***Website link:*** https://rerides-vn.vercel.app
+
+*Mock client:* https://dhp-exe.github.io/reridesVN
 ## ✨ Features
 
 - **Multi-Provider Comparison:** Real-time price comparison for Grab, Be, and Xanh SM.
@@ -29,6 +32,9 @@ ReRides VN is a ride-hailing aggregator application for Vietnam. It allows users
 - **Routing Engine:** OpenRouteService API
 - **Geocoding Engine:** OpenMap.vn API
 - **Server:** Uvicorn
+### Deployment
+- **Frontend:** Vercel
+- **Backend:** Render
 
 ## 🚀 Getting Started ( using Docker)
 
