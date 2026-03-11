@@ -36,6 +36,46 @@ ReRides VN is a ride-hailing aggregator application for Vietnam. It allows users
 - **Frontend:** Vercel
 - **Backend:** Render
 
+## 🏗️ Architecture
+### Overview
+ReRides VN follows a client-server architecture with a React frontend calling a FastAPI backend. The frontend handles user input, route visualization, and comparison UI, while the backend coordinates routing, pricing, traffic adjustment, geocoding, and cached place lookups. External providers are abstracted behind service modules so the API can return a single normalized comparison payload to the client.
+### System flow
+```mermaid
+flowchart LR
+  U[User] --> F[React Frontend\nVite + Tailwind]
+  F -->|POST /api/estimate| E[FastAPI Estimate API]
+  F -->|POST /api/geocode| G[FastAPI Geocode API]
+  F -->|GET /api/autocomplete| A[FastAPI Autocomplete API]
+
+  E --> R[Routing Service]
+  E --> P[Pricing Service]
+  E --> T[Traffic Utility]
+
+  R --> ORS[OpenRouteService API]
+  G --> GS[Geocoding Service]
+  A --> GS
+
+  GS --> OMAP[OpenMap.vn API]
+  GS <--> DB[(SQLite Cache)]
+
+  E --> RESP[Normalized ride estimates]
+  G --> GEO[Coordinates response]
+  A --> AUTO[Address suggestions]
+
+  RESP --> F
+  GEO --> F
+  AUTO --> F
+  F --> M[Map + Comparison UI + Deep Links]
+```
+
+## 📘 API Documentation
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/api/estimate` | Calculates route distance, trip duration, traffic factor, and estimated prices for supported ride providers based on pickup, dropoff, and vehicle type. |
+| `POST` | `/api/geocode` | Converts a user-provided address into latitude and longitude coordinates. |
+| `GET` | `/api/autocomplete` | Returns address or place suggestions for a search query, optionally biased by the user's current latitude and longitude. |
+
 ## 🚀 Getting Started ( using Docker)
 
 The easiest way to run the project is using Docker. This will set up the Frontend, Backend, and Nginx proxy automatically.
